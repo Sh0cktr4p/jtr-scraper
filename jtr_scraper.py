@@ -37,7 +37,30 @@ def get_tournament_placements(href: str) -> List[str]:
     page = BeautifulSoup(requests.get(f"{JTR_BASE_URL}/{href}").content, "html.parser")
     table = page.find("table")
     trs = table.find_all("tr")[1:]  # Skip header
-    return [tr.find_all("td")[2].text for tr in trs]
+
+    # Some tournaments have missing placements lol
+    # Example: https://turniere.jugger.org/tournament.result.php?id=632
+    # Missing placement numbers: same place as the team above
+    # Example: https://turniere.jugger.org/tournament.result.php?id=701
+    teams = []
+
+    for tr in trs:
+        tds = tr.find_all("td")
+        spot = (
+            teams[-1]["spot"]
+            if tds[0].text == ""
+            else int(tds[0].text.replace(".", ""))
+        )
+        team = tds[2].text
+
+        teams.append({
+            "spot": spot,
+            "team": team,
+        })
+
+    print(teams)
+
+    return teams
 
 
 def get_tournament_displayed_points(href: str) -> List[str]:

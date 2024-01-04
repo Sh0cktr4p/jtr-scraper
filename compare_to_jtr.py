@@ -12,7 +12,9 @@ JTR_RANKING_TABLE = BeautifulSoup(
 
 teams = [tr.find_all("td")[2].text for tr in JTR_RANKING_TABLE]
 jtr_points = [float(tr.find_all("td")[5].text) for tr in JTR_RANKING_TABLE]
-my_points = [get_points(team, "24.12.2023") for team in teams]
+my_points = [round(get_points(team, '30.12.2023'), 2) for team in teams]
+
+print([f"{team}: {jtr_points[spot]} vs {my_points[spot]}" for spot, team in enumerate(teams) if jtr_points[spot] != my_points[spot]])
 
 plt.plot(np.arange(len(teams)), jtr_points, label="JTR")
 plt.plot(np.arange(len(teams)), my_points, label="Mine")
