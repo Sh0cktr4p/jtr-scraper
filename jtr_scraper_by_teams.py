@@ -31,19 +31,18 @@ def get_team_tournaments(team_href: str):
         'html.parser',
     )
 
-    team_page_table_trs = [
-        team_page_soup.find_all('table')[0].find_all('tr')[1:]
-    ]
+    team_page_table_trs = team_page_soup.find_all('table')[0].find_all('tr')[1:]
 
     def get_tournament_info_from_tr(tr):
-        print(type(tr))
+        # print(type(tr))
         tds = tr.find_all('td')
         tournament_a = tds[1].find('a')
 
         id = tournament_a['href'].replace('tournament.php?id=', '')
         date = tds[0].text
         name = tournament_a['title']
-        placement, n_teams = tds[2].text.split('/')
+        
+        placement, n_teams = tds[3].text.split('/')
 
         return {
             'id': id,
