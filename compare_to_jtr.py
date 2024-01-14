@@ -12,7 +12,7 @@ JTR_RANKING_TABLE = BeautifulSoup(
 
 teams = [tr.find_all("td")[2].text for tr in JTR_RANKING_TABLE]
 jtr_points = [float(tr.find_all("td")[5].text) for tr in JTR_RANKING_TABLE]
-my_points = [get_points(team, "24.12.2023") for team in teams]
+my_points = [get_points(team, "04.01.2024") for team in teams]
 
 plt.plot(np.arange(len(teams)), jtr_points, label="JTR")
 plt.plot(np.arange(len(teams)), my_points, label="Mine")
