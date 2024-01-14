@@ -9,6 +9,7 @@ import requests
 
 from bs4 import BeautifulSoup
 import numpy as np
+from alive_progress import alive_bar
 
 
 JTR_BASE_URL = 'https://turniere.jugger.org'
@@ -182,10 +183,13 @@ def get_tmt_size_to_point_weight_mapping(
 
     points_by_size = {}  # tournament size -> points
 
-    for id, n_teams in tournament_sizes.items():
-        points_by_size.setdefault(n_teams, []).append(
-            get_tournament_displayed_point_weight(id)
-        )
+    print("Calculating point weight mapping...")
+    with alive_bar(len(tournament_sizes)) as bar:
+        for id, n_teams in tournament_sizes.items():
+            points_by_size.setdefault(n_teams, []).append(
+                get_tournament_displayed_point_weight(id)
+            )
+            bar()
 
     return {
         n_teams: np.argmax(np.bincount(points_list))
@@ -205,13 +209,16 @@ def _add_flat_points_information(
     """
     point_weight_mapping = get_tmt_size_to_point_weight_mapping(jtr)
 
-    for tmts in jtr.values():
-        for tmt in tmts:
-            tmt['flat_points'] = calculate_flat_points(
-                placement=tmt['placement'],
-                n_teams=tmt['n_teams'],
-                point_weight_mapping=point_weight_mapping,
-            )
+    print("Calculating flat points...")
+    with alive_bar(len(jtr)) as bar:
+        for tmts in jtr.values():
+            for tmt in tmts:
+                tmt['flat_points'] = calculate_flat_points(
+                    placement=tmt['placement'],
+                    n_teams=tmt['n_teams'],
+                    point_weight_mapping=point_weight_mapping,
+                )
+            bar()
 
 
 def scrape_jtr() -> JTR:
@@ -230,10 +237,15 @@ def scrape_jtr() -> JTR:
         JTR: a dictionary
             of team names to tournament information
     """
-    jtr = {
-        team_name: get_team_tournaments(team_href)
-        for team_name, team_href in get_team_names_hrefs()
-    }
+    team_names_hrefs = get_team_names_hrefs()
+
+    jtr = {}
+
+    print("Scraping JTR for tournament information...")
+    with alive_bar(len(team_names_hrefs)) as bar:
+        for team_name, team_href in team_names_hrefs:
+            jtr[team_name] = get_team_tournaments(team_href)
+            bar()
 
     _add_flat_points_information(jtr)
 
