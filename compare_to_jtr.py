@@ -1,20 +1,31 @@
-from calc_points import get_points
-import requests
-from bs4 import BeautifulSoup
+"""This file contains a script for comparing the scores of this
+implementation to the scores displayed in the JTR.
+
+Author: Felix Trost
+"""
+from calc_score import calc_score
 import matplotlib.pyplot as plt
 import numpy as np
+from jtr_scraper import get_ranking_page_soup
 
-JTR_BASE_URL = 'https://turniere.jugger.org'
 
-JTR_RANKING_TABLE = BeautifulSoup(
-    requests.get(f"{JTR_BASE_URL}/rank.team.php").content
-).find("table").find_all("tr")[1:-1]  # Skip header
+if __name__ == "__main__":
+    date = "04.01.2024"
 
-teams = [tr.find_all("td")[2].text for tr in JTR_RANKING_TABLE]
-jtr_points = [float(tr.find_all("td")[5].text) for tr in JTR_RANKING_TABLE]
-my_points = [get_points(team, "24.12.2023") for team in teams]
+    jtr_ranking_table = get_ranking_page_soup().find(
+        "table"
+    ).find_all(
+        "tr"
+    )[1:-1]  # Skip header
 
-plt.plot(np.arange(len(teams)), jtr_points, label="JTR")
-plt.plot(np.arange(len(teams)), my_points, label="Mine")
-plt.legend()
-plt.show()
+    teams = [tr.find_all("td")[2].text for tr in jtr_ranking_table]
+
+    official_scores = [
+        float(tr.find_all("td")[5].text) for tr in jtr_ranking_table
+    ]
+    my_scores = [calc_score(team, date) for team in teams]
+
+    plt.plot(np.arange(len(teams)), official_scores, label="JTR")
+    plt.plot(np.arange(len(teams)), my_scores, label="Mine")
+    plt.legend()
+    plt.show()
