@@ -3,14 +3,24 @@ implementation to the scores displayed in the JTR.
 
 Author: Felix Trost
 """
+from datetime import datetime
 from calc_score import calc_score
 import matplotlib.pyplot as plt
 import numpy as np
-from jtr_scraper import get_ranking_page_soup
+from jtr_scraper import get_ranking_page_soup, load_jtr_from_json
 
 
 if __name__ == "__main__":
-    date = "04.01.2024"
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--date",
+        "-d",
+        type=str,
+        default=datetime.now().strftime("%d.%m.%Y"),
+    )
+    args = parser.parse_args()
 
     jtr_ranking_table = get_ranking_page_soup().find(
         "table"
@@ -18,12 +28,14 @@ if __name__ == "__main__":
         "tr"
     )[1:-1]  # Skip header
 
+    jtr = load_jtr_from_json()
+
     teams = [tr.find_all("td")[2].text for tr in jtr_ranking_table]
 
     official_scores = [
         float(tr.find_all("td")[5].text) for tr in jtr_ranking_table
     ]
-    my_scores = [calc_score(team, date) for team in teams]
+    my_scores = [calc_score(team, args.date, jtr) for team in teams]
 
     plt.plot(np.arange(len(teams)), official_scores, label="JTR")
     plt.plot(np.arange(len(teams)), my_scores, label="Mine")
