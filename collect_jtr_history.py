@@ -3,7 +3,7 @@ r"""This file defines a script to collect the JTR history of a list of teams.
 Usage:
 ```
 python collect_jtr_history.py \
-    [<team_name> ...] [-i <interval>] [-s <start>] [-e <end>]
+    [<team_name> ...] (-i <interval>) (-s <start>) (-e <end>)
 ```
 
 Args:
