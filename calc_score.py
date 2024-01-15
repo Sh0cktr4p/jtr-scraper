@@ -3,10 +3,9 @@ at a given date.
 
 Author: Felix Trost
 """
-import json
 from datetime import datetime
 import numpy as np
-from jtr_scraper import JTR, JTR_JSON_PATH
+from jtr_scraper import JTR, load_jtr_from_json
 
 
 def calc_score(team_name: str, date: str, jtr: JTR) -> int:
@@ -49,11 +48,15 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("team_name", type=str)
-    parser.add_argument("--date", type=str, default="09.01.2024")
+    parser.add_argument(
+        "--date",
+        "-d",
+        type=str,
+        default=datetime.now().strftime("%d.%m.%Y"),
+    )
 
     args = parser.parse_args()
 
-    with open(JTR_JSON_PATH, "r") as f:
-        jtr = json.load(f)
+    jtr = load_jtr_from_json()
 
     print(calc_score(args.team_name, args.date, jtr))
