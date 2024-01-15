@@ -24,7 +24,11 @@ def calc_score(team_name: str, date: str, jtr: JTR) -> int:
     def get_time_factor(ref_time, tmt_date):
         tmt_time = datetime.strptime(tmt_date, "%d.%m.%Y")
         day_diff = (ref_time - tmt_time).days
-        return 0.75 ** int(day_diff / 180)
+
+        if day_diff < 0:
+            return 0
+        else:
+            return 0.75 ** int(day_diff / 180)
 
     disc_points = list(map(
         lambda tmt: get_time_factor(
