@@ -183,8 +183,10 @@ def get_tmt_size_to_point_weight_mapping(
 
     points_by_size = {}  # tournament size -> points
 
-    print("Calculating point weight mapping...")
-    with alive_bar(len(tournament_sizes)) as bar:
+    with alive_bar(
+        len(tournament_sizes),
+        title="Calculating point weight mapping...",
+    ) as bar:
         for id, n_teams in tournament_sizes.items():
             points_by_size.setdefault(n_teams, []).append(
                 get_tournament_displayed_point_weight(id)
@@ -209,8 +211,10 @@ def _add_flat_points_information(
     """
     point_weight_mapping = get_tmt_size_to_point_weight_mapping(jtr)
 
-    print("Calculating flat points...")
-    with alive_bar(len(jtr)) as bar:
+    with alive_bar(
+        len(jtr),
+        title="Calculating flat points..."
+    ) as bar:
         for tmts in jtr.values():
             for tmt in tmts:
                 tmt['flat_points'] = calculate_flat_points(
@@ -241,8 +245,10 @@ def scrape_jtr() -> JTR:
 
     jtr = {}
 
-    print("Scraping JTR for tournament information...")
-    with alive_bar(len(team_names_hrefs)) as bar:
+    with alive_bar(
+        len(team_names_hrefs),
+        title="Scraping JTR for tournament information..."
+    ) as bar:
         for team_name, team_href in team_names_hrefs:
             jtr[team_name] = get_team_tournaments(team_href)
             bar()
@@ -250,6 +256,18 @@ def scrape_jtr() -> JTR:
     _add_flat_points_information(jtr)
 
     return jtr
+
+
+def load_jtr_from_json() -> JTR:
+    """Load the JTR from the JSON file.
+
+    Returns:
+        JTR: a dictionary
+            of team names to tournament information
+    """
+    global JTR_JSON_PATH
+    with open(JTR_JSON_PATH, 'r') as f:
+        return json.load(f)
 
 
 if __name__ == '__main__':
